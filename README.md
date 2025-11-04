@@ -1,16 +1,41 @@
-# kickoff
+# 📱 KickOff— Flutter PBP 25/26
 
-A new Flutter project.
+## Overview
+- **Student**: Matthew Wijaya
+- **NPM**: _2406359203_  
+- **Repository**: _[link-to-repo](https://github.com/matt-wijaya/kick-off-mobile.git)_  
+---
+# Tugas 1
 
-## Getting Started
+## 1) Apa itu widget tree pada Flutter dan bagaimana hubungan parent–child bekerja?
+Widget tree pada flutter adalah struktur hierarkis yang merepresentasikan UI dari suatu aplikasi. Setiap elemen di dalam UI adalah sebuah widget dan memiliki posisinya masing-masing di dalam tree yang ada. MaterialApp biasanaya berperan sebagai root, dan Scaffold akan menjadi parent untuk area screen. Hubungan parent dan child menentukan bagaimana ukuran, posisi, tema, dan perilaku dari parent di inherit ke childnya sehingga adanya constraints yang berlaku untuk semua. 
+## 2) Semua widget yang saya gunakan & fungsinya
+Dalam project ini, saya menggunakan MaterialApp sebagai wrapper dari app, kemudian Scaffold digunakan sebagai blueprint template dari lapangan yang memprovide appBar, Body, dan Snackbar), AppBar menampilkan judul dia tas. Di dalam body, ada padding yang memberi jarak ke sisi, dan GridView.count yang tiga buah tombol yang sudah dibuat ke dalam tiga kolom. Setiap tombol adalah kombinasi material, InkWell, dan Container yang mewrap isinya. Tombol menggunakan Collumn dan Center untuk memposisikan Icon dan Text. 
 
-This project is a starting point for a Flutter application.
+## 3) Fungsi `MaterialApp` & alasan sering jadi widget root
+MaterialApp berperan sebagai dasar dari Material Design yang meliputi navigator, global theme, default text direction, scaffoldMessenger, dan sebagainya. Widget Material mengandalkan hal-hal tersebut. Maka, jika kita meng-add MaterialApp sebagai root, kita bisa memastikan seluruh subtree memperoleh semua kebutuhan mereka. 
 
-A few resources to get you started if this is your first Flutter project:
+## 4) Perbedaan `StatelessWidget` vs `StatefulWidget` & kapan memilih
+Stateless Widget dimanfaatkan untuk UI yang ditentukan oleh input saat ini dan tidak berubah seiring waktu (immutable) dan hanya berubah jika dependensinya berubah. Contoh dalam konteks ini adalah tombol yang labelnya tetap.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Stateful Widget di sisi lain digunakan untuk UI yang harus menyimpan dan mengelola state yang ada selama dia berlaku, contohnya seperti form validation, animasi, data baru, dan sebagainya. 
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+StatelessWidget digunakan ketika tampilan tidak berubah dan hanya bergantung pada argumen. Sementara StatefulWidget digunakan ketika membutuhkan penyimpanan nilai yang berubah-ubah selama widget ada.
+
+## 5) Apa itu `BuildContext`, pentingnya, & penggunaannya di `build()`
+BuildContext adalah lokasi sebuah widget dalam widget tree. Dari adanya itu, widget bisa mengakses parentnya, parent dari parentnya, dan seterusnya serta atribut-atribut yang dimiliki parent tersebut. Contohnya adalah tema, ukuran layar, navigator, dan widget yang diwariskan.
+
+Harus ada konteks dalam pemanggilan build(BuildContext context), konteks yang diterima harus digunakan untuk membuat subtree baru. Context terlink dengan posisi widget, maka mencall of(context) harus menggunakan konteks yang juga berada di bawah ancestor yang terkait. 
+
+## 6) Konsep "hot reload" vs "hot restart"
+- **Hot reload**:
+  - Yang terjadi: …
+  - Kapan dipakai: …
+  - Keterbatasan: …
+- **Hot restart**:
+  - Yang terjadi: …
+  - Kapan dipakai: …
+- **Perbandingan ringkas**:
+  - State dipertahankan? …
+  - Kecepatan? …
+  - Kasus perlu restart penuh (stop/run)? …
