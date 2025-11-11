@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:kickoff/widgets/left_drawer.dart';
+import 'package:kickoff/screens/items_form.dart';
 
 class ItemHomepage {
   final String name;
@@ -29,9 +31,18 @@ class ItemCard extends StatelessWidget {
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(
-              SnackBar(content: Text(item.snackText)),
+              SnackBar(content: Text("Kamu telah menekan tombol ${item.name}!")),
             );
+
+          // Navigasi ke form
+          if (item.name == "Create Product" || item.name == "Tambah Produk" || item.name == "Add Product") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ItemsFormPage()),
+            );
+          }
         },
+        
         child: Container(
           padding: const EdgeInsets.all(12),
           child: Center(
@@ -94,18 +105,19 @@ class MyHomePage extends StatelessWidget {
         ),
         backgroundColor: Theme.of(context).colorScheme.primary,
       ),
+      drawer: const LeftDrawer(),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: GridView.count(
-                    primary: false,
-                    padding: const EdgeInsets.all(8),
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    crossAxisCount: 3,
-                    shrinkWrap: true,
-                    children: items.map((item) => ItemCard(item)).toList(),
-                  ),
-              ),
-            );
+          primary: false,
+          padding: const EdgeInsets.all(8),
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          crossAxisCount: 3,
+          shrinkWrap: true,
+          children: items.map((item) => ItemCard(item)).toList(),
+        ),
+      ),
+    );
   }
 }
