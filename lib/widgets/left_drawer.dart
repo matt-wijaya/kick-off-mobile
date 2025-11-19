@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kickoff/menu.dart';
 import 'package:kickoff/screens/items_form.dart';
+import 'package:kickoff/screens/list_item.dart';
 
 class LeftDrawer extends StatelessWidget {
   const LeftDrawer({super.key});
@@ -52,6 +53,17 @@ class LeftDrawer extends StatelessWidget {
               );
             },
           ),
+          // Tambahkan di dalam children ListView:
+        ListTile(
+            leading: const Icon(Icons.list),
+            title: const Text('Daftar Item'),
+            onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ItemListPage()),
+                );
+            },
+        ),
         ],
       ),
     );

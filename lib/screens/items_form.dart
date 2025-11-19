@@ -1,5 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:kickoff/menu.dart';
 import 'package:kickoff/widgets/left_drawer.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
 class ItemsFormPage extends StatefulWidget {
   const ItemsFormPage({super.key});
@@ -18,6 +22,7 @@ class _ItemsFormPageState extends State<ItemsFormPage> {
   String _thumbnail = "";                // opsional
   bool _isFeatured = false;              // default
   String _priceText = "";                // raw text dari field harga
+  int _stock = 0; // stock
 
   final List<String> _categories = [
     'jersey',
@@ -29,6 +34,9 @@ class _ItemsFormPageState extends State<ItemsFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    // BARU: Akses CookieRequest
+    final request = context.watch<CookieRequest>();
+    
     return Scaffold(
       appBar: AppBar(
         title: const Center(child: Text('Add Product Form')),
@@ -105,6 +113,37 @@ class _ItemsFormPageState extends State<ItemsFormPage> {
                   },
                 ),
               ),
+              
+              // === Stock ===
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    hintText: "Stok Produk",
+                    labelText: "Stok",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                  ),
+                  onChanged: (String? value) {
+                    setState(() => _stock = int.tryParse(value ?? '0') ?? 0);
+                  },
+                  validator: (String? value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Stok tidak boleh kosong!";
+                    }
+                    final parsed = int.tryParse(value.trim());
+                    if (parsed == null) {
+                      return "Stok harus berupa bilangan bulat.";
+                    }
+                    if (parsed < 0) {
+                      return "Stok tidak boleh negatif.";
+                    }
+                    return null;
+                  },
+                ),
+              ),
 
               // === Description ===
               Padding(
@@ -143,7 +182,7 @@ class _ItemsFormPageState extends State<ItemsFormPage> {
                       borderRadius: BorderRadius.circular(5.0),
                     ),
                   ),
-                  value: _category,
+                  initialValue: _category, // KOREKSI: Mengganti 'value' menjadi 'initialValue'
                   items: _categories
                       .map((cat) => DropdownMenuItem(
                             value: cat,
@@ -207,49 +246,43 @@ class _ItemsFormPageState extends State<ItemsFormPage> {
                   padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton(
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(Colors.indigo),
+                      backgroundColor: WidgetStateProperty.all(Colors.indigo), // KOREKSI: Mengganti MaterialStateProperty
                     ),
-                    onPressed: () {
+                    onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         final price = double.parse(_priceText.trim().replaceAll(',', ''));
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              title: const Text('Produk berhasil tersimpan'),
-                              content: SingleChildScrollView(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('Nama: $_name'),
-                                    Text('Harga: $price'),
-                                    Text('Deskripsi: $_description'),
-                                    Text('Kategori: $_category'),
-                                    Text('Thumbnail: ${_thumbnail.isEmpty ? "-" : _thumbnail}'),
-                                    Text('Unggulan: ${_isFeatured ? "Ya" : "Tidak"}'),
-                                  ],
-                                ),
-                              ),
-                              actions: [
-                                TextButton(
-                                  child: const Text('OK'),
-                                  onPressed: () {
-                                    Navigator.pop(context); // tutup dialog
-                                    _formKey.currentState!.reset();
-                                    setState(() {
-                                      _name = "";
-                                      _priceText = "";
-                                      _description = "";
-                                      _thumbnail = "";
-                                      _isFeatured = false;
-                                      _category = "lainnya";
-                                    });
-                                  },
-                                ),
-                              ],
-                            );
-                          },
+                        
+                        final response = await request.postJson(
+                          "http://localhost:8000/create-item-ajax/", 
+                          jsonEncode({
+                            "name": _name,
+                            "price": price,
+                            "description": _description,
+                            "thumbnail": _thumbnail,
+                            "category": _category,
+                            "is_featured": _isFeatured,
+                            "stock": _stock, // Kirim nilai stock
+                          }),
                         );
+
+                        if (context.mounted) {
+                          if (response['status'] == 'success') {
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(const SnackBar(
+                              content: Text("Item berhasil ditambahkan!"),
+                            ));
+                            // Redirect ke Home setelah sukses
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => MyHomePage()), 
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(SnackBar(
+                              content: Text("Gagal menambahkan item: ${response['message']}"),
+                            ));
+                          }
+                        }
                       }
                     },
                     child: const Text("Save", style: TextStyle(color: Colors.white)),
